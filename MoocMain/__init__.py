@@ -128,6 +128,10 @@ class AutoMoocMain:
             self.sign_learn(course_id)
             course_html_page = self.get_course_html(course_id)
             learn_menu_root = HtmlParser.get_learn_menu_root(course_html_page)
-            log.debug(f"学习目录: {learn_menu_root}")
-
-
+            chapters = HtmlParser.get_learn_chapter(learn_menu_root)
+            section_list = HtmlParser.get_learn_sectionlist(learn_menu_root)
+            for chapter, section in zip(chapters, section_list):
+                log.info(f"学习章节: {chapter['title']}")
+                log.info(f"学习小节: {section['title']}")
+                for section_item in section['sectionList']:
+                    ...

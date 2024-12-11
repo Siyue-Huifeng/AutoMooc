@@ -8,7 +8,11 @@ from MoocMain.Log import log
 
 from MoocMain import AutoMoocMain
 
-config = toml.load("config.toml")
+
+try:
+    config = toml.load("config.toml")
+except FileNotFoundError:
+    ...
 
 username = config["username"]
 password = config["password"]
