@@ -131,12 +131,15 @@ class AutoMoocMain:
             learn_menu_root = HtmlParser.get_menu_root(course_html_page)
             chapters = HtmlParser.get_chapter(str(learn_menu_root))
             sections_list = HtmlParser.get_sectionlist(str(learn_menu_root))
-            chapter_index = 0
+            chapter_index = 1
             for chapter, sections in zip(chapters, sections_list):
-                log.info(f"学习章节> 第{chapter_index}章: {chapter['title']}")
+                log.info(f"第{chapter_index}章: {chapter['title']}")
                 chapter_index += 1
-                section_index = 0
-                for sections in sections_list:
-                    
-                    for section in sections:
-                        ...
+                sections_chapter = HtmlParser.get_section_title(str(sections))
+                sections = HtmlParser.get_section_content(str(sections))
+                section_index = 1
+                time.sleep(2)
+                for section, section_content in zip(sections_chapter, sections):
+                    log.info(f"第{chapter_index}章 > 第{section_index}节: {section['title']}")
+                    section_index += 1
+                    time.sleep(1)
