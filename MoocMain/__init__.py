@@ -8,7 +8,7 @@ import time
 import os
 
 import toml
-import lxml
+from bs4.element import Tag
 
 from .Log import log
 from .Tools import HtmlParser
@@ -127,11 +127,16 @@ class AutoMoocMain:
             course_id = course_item[6]
             self.sign_learn(course_id)
             course_html_page = self.get_course_html(course_id)
-            learn_menu_root = HtmlParser.get_learn_menu_root(course_html_page)
-            chapters = HtmlParser.get_learn_chapter(learn_menu_root)
-            section_list = HtmlParser.get_learn_sectionlist(learn_menu_root)
-            for chapter, section in zip(chapters, section_list):
-                log.info(f"学习章节: {chapter['title']}")
-                log.info(f"学习小节: {section['title']}")
-                for section_item in section['sectionList']:
-                    ...
+
+            learn_menu_root = HtmlParser.get_menu_root(course_html_page)
+            chapters = HtmlParser.get_chapter(str(learn_menu_root))
+            sections_list = HtmlParser.get_sectionlist(str(learn_menu_root))
+            chapter_index = 0
+            for chapter, sections in zip(chapters, sections_list):
+                log.info(f"学习章节> 第{chapter_index}章: {chapter['title']}")
+                chapter_index += 1
+                section_index = 0
+                for sections in sections_list:
+                    
+                    for section in sections:
+                        ...

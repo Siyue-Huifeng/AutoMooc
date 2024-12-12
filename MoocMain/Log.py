@@ -6,6 +6,6 @@
 import logop
 
 log = logop.Logging(stdout=False)
-log.set_level("debug")
+# log.set_level("debug")
 log.add_stream(logop.StandardOutputStreamPlus())
 log.add_stream(logop.FileOutputStream())

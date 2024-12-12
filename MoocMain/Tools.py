@@ -17,19 +17,31 @@ class Utils:
 class HtmlParser:
 
     @staticmethod
-    def get_learn_menu_root(html) -> bs4.element.Tag:
+    def get_menu_root(html : str) -> bs4.element.Tag:
         soup = bs4.BeautifulSoup(html, "html.parser")
         div = soup.find("div", class_ = "s_learnlist")
         return div
 
     @staticmethod
-    def get_learn_chapter(html) -> list[bs4.element.Tag]:
+    def get_chapter(html : str) -> list[bs4.element.Tag]:
         soup = bs4.BeautifulSoup(html, "html.parser")
         all_chapter_div = soup.find_all("div", class_="s_chapter chapter_new")
         return all_chapter_div
 
     @staticmethod
-    def get_learn_sectionlist(html) -> list[bs4.element.Tag]:
+    def get_sectionlist(html : str) -> list[bs4.element.Tag]:
         soup = bs4.BeautifulSoup(html, "html.parser")
         all_sectionlist = soup.find_all("div", class_="s_sectionlist")
         return all_sectionlist
+    
+    @staticmethod
+    def get_section_title(html : str) -> list[bs4.element.Tag]:
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        all_section = soup.find_all("div", class_="s_section chapter_new")
+        return all_section
+    
+    @staticmethod
+    def get_section_content(html : str) -> list[bs4.element.Tag]:
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        all_section_content = soup.find_all("div", class_="s_sectionwrap")
+        return all_section_content

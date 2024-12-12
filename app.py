@@ -4,8 +4,8 @@
 # @Time: 2024/12/8
 
 import toml
-from MoocMain.Log import log
 
+from MoocMain.Log import log
 from MoocMain import AutoMoocMain
 
 
