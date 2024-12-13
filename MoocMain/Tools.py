@@ -45,3 +45,9 @@ class HtmlParser:
         soup = bs4.BeautifulSoup(html, "html.parser")
         all_section_content = soup.find_all("div", class_="s_sectionwrap")
         return all_section_content
+    
+    @staticmethod
+    def get_section_type(html : str) -> str:
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        type_div = soup.find("div", class_="s_pointti")
+        return type_div["title"]
