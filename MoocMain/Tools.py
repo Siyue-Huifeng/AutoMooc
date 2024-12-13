@@ -51,3 +51,9 @@ class HtmlParser:
         soup = bs4.BeautifulSoup(html, "html.parser")
         type_div = soup.find("div", class_="s_pointti")
         return type_div["title"]
+    
+    @staticmethod
+    def is_section_done(html : str) -> bool:
+        if "item_done_icon item_done_pos done_icon_show" in html:
+            return True
+        return False
