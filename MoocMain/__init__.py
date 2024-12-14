@@ -118,8 +118,21 @@ class AutoMoocMain:
             log.error(f"获取课程学习列表失败，正在重试... {e}")
             time.sleep(2)
             return self.get_course_html(course_id)
+        
+    def learn_course(self, course) -> None:
+        ...
+        
+    def watch_video(self, video_url) -> None:
+        ...
+
+    def join_topic(self, topic_id) -> None:
+        ...
+
+    def listen_audio(self, audio_url) -> None:
+        ...
 
     def run(self) -> None:
+        # 不要问我为森马会有介么多层 for 
         mooc_course_items = self.load_courses()
         for course_item in mooc_course_items['data']:
             log.debug(Utils.format_json(course_item))
@@ -139,7 +152,10 @@ class AutoMoocMain:
                 sections = HtmlParser.get_section_content(str(sections))
                 section_index = 1
                 time.sleep(2)
-                for section, section_content in zip(sections_chapter, sections):
-                    log.info(f"第{chapter_index}章 > 第{section_index}节: {section['title']}")
+                for section_title, courses in zip(sections_chapter, sections):
                     section_index += 1
                     time.sleep(1)
+                    courses = HtmlParser.get_courses(str(courses))
+                    for course_title in courses:
+                        title = HtmlParser.get_course_title(str(course_title))
+                        log.info(f"第{chapter_index}章 > 第{section_index}节: {section_title['title']} > {title}")

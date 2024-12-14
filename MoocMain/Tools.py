@@ -57,3 +57,8 @@ class HtmlParser:
         if "item_done_icon item_done_pos done_icon_show" in html:
             return True
         return False
+
+    @staticmethod
+    def get_courses(html : str):
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        courses = soup.find_all("div", class_="s_point")
