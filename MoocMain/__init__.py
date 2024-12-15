@@ -158,4 +158,4 @@ class AutoMoocMain:
                     courses = HtmlParser.get_courses(str(courses))
                     for course_title in courses:
                         title = HtmlParser.get_course_title(str(course_title))
-                        log.info(f"第{chapter_index}章 > 第{section_index}节: {section_title['title']} > {title}")
+                        log.info(f"第{chapter_index}章 > 第{section_index}节 > {title}")

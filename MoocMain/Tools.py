@@ -8,6 +8,8 @@ import json
 import lxml
 import bs4
 
+from bs4.element import Tag
+
 class Utils:
 
     @staticmethod
@@ -17,31 +19,31 @@ class Utils:
 class HtmlParser:
 
     @staticmethod
-    def get_menu_root(html : str) -> bs4.element.Tag:
+    def get_menu_root(html : str) -> Tag:
         soup = bs4.BeautifulSoup(html, "html.parser")
         div = soup.find("div", class_ = "s_learnlist")
         return div
 
     @staticmethod
-    def get_chapter(html : str) -> list[bs4.element.Tag]:
+    def get_chapter(html : str) -> list[Tag]:
         soup = bs4.BeautifulSoup(html, "html.parser")
         all_chapter_div = soup.find_all("div", class_="s_chapter chapter_new")
         return all_chapter_div
 
     @staticmethod
-    def get_sectionlist(html : str) -> list[bs4.element.Tag]:
+    def get_sectionlist(html : str) -> list[Tag]:
         soup = bs4.BeautifulSoup(html, "html.parser")
         all_sectionlist = soup.find_all("div", class_="s_sectionlist")
         return all_sectionlist
     
     @staticmethod
-    def get_section_title(html : str) -> list[bs4.element.Tag]:
+    def get_section_title(html : str) -> list[Tag]:
         soup = bs4.BeautifulSoup(html, "html.parser")
         all_section = soup.find_all("div", class_="s_section chapter_new")
         return all_section
     
     @staticmethod
-    def get_section_content(html : str) -> list[bs4.element.Tag]:
+    def get_section_content(html : str) -> list[Tag]:
         soup = bs4.BeautifulSoup(html, "html.parser")
         all_section_content = soup.find_all("div", class_="s_sectionwrap")
         return all_section_content
@@ -59,6 +61,16 @@ class HtmlParser:
         return False
 
     @staticmethod
-    def get_courses(html : str):
+    def get_courses(html : str) -> list[Tag]:
         soup = bs4.BeautifulSoup(html, "html.parser")
         courses = soup.find_all("div", class_="s_point")
+        return courses
+    
+    @staticmethod
+    def get_course_title(html : str) -> str:
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        title = soup.find("div", class_="s_pointti")
+        try:
+            return title['title']
+        except:
+            return title.text.strip()

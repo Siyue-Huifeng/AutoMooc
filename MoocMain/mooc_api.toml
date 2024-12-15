@@ -1,7 +1,4 @@
 login = "https://sso.icve.com.cn/prod-api/data/userLoginV2"
-
 courses = "https://mooc.icve.com.cn/patch/zhzj/studentMooc_selectMoocCourse.action"
-
 join_course = "https://mooc.icve.com.cn/patch/zhzj/dataCheck.action"
-
 courseware = "https://course.icve.com.cn/learnspace/learn/learn/templateeight/courseware_index.action"
