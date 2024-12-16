@@ -7,6 +7,7 @@ import json
 
 import lxml
 import bs4
+import re
 
 from bs4.element import Tag
 
@@ -74,3 +75,15 @@ class HtmlParser:
             return title['title']
         except:
             return title.text.strip()
+
+    @staticmethod
+    def get_course_type(html : str) -> str:
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        type_div = soup.find("div", class_="s_pointti")
+        return type_div["title"]
+
+    @staticmethod
+    def get_course_id(html : str) -> str:
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        course_id = soup.find("div", class_="s_pointti")
+        return course_id["data-id"]

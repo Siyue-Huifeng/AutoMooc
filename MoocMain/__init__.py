@@ -57,7 +57,7 @@ class AutoMoocMain:
 
     def load_courses(self) -> dict:
         self.session.get(f"https://mooc.icve.com.cn/?token=${self.token}")
-        courses_api = mooc_api_url['courses']
+        courses_api = mooc_api_url['select_courses']
         params = f"token={self.token}&siteCode=zhzj&curPage=1&pageSize=9999&selectType=1"
 
         try:
@@ -119,20 +119,37 @@ class AutoMoocMain:
             time.sleep(2)
             return self.get_course_html(course_id)
         
-    def learn_course(self, course) -> None:
-        ...
+    def get_topic_params(self, topic_id, course_id):
+        param = {
+            "action": "item",
+            "itemid": topic_id,
+            "courseId": course_id,
+            "ssoUserId": self.username
+        }
+
+        url = mooc_api_url["course_topic"]
+        resp = self.session.get(url = url, params = param)
+        return resp.text
+
+    def learn_course(self, course: Tag, course_id) -> None:
+        type = course['itemtype']
+        id = course['id'].replace("s_point_", "")
+        if type == "topic":
+            self.join_topic(id, course_id)
+
         
     def watch_video(self, video_url) -> None:
         ...
 
-    def join_topic(self, topic_id) -> None:
-        ...
+    def join_topic(self, topic_id, course_id) -> None:
+        params = self.get_topic_params(topic_id, course_id)
+
 
     def listen_audio(self, audio_url) -> None:
         ...
 
     def run(self) -> None:
-        # 不要问我为森马会有介么多层 for 
+        # 不要问我为啥会有介么多层 for 
         mooc_course_items = self.load_courses()
         for course_item in mooc_course_items['data']:
             log.debug(Utils.format_json(course_item))
@@ -156,6 +173,8 @@ class AutoMoocMain:
                     section_index += 1
                     time.sleep(1)
                     courses = HtmlParser.get_courses(str(courses))
-                    for course_title in courses:
-                        title = HtmlParser.get_course_title(str(course_title))
-                        log.info(f"第{chapter_index}章 > 第{section_index}节 > {title}")
+                    for course in courses:
+                        title = HtmlParser.get_course_title(str(course))
+                        type = course['itemtype']
+                        log.info(f"第{chapter_index}章 > 第{section_index}节 > {type} {title}")
+                        self.learn_course(course, course_id)
