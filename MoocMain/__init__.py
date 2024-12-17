@@ -126,9 +126,13 @@ class AutoMoocMain:
             "courseId": course_id,
             "ssoUserId": self.username
         }
-
         url = mooc_api_url["course_topic"]
         resp = self.session.get(url = url, params = param)
+        if "<script>" in resp.text:
+            acw_sc__v2 = Utils.get_acw_sc__v2(resp.text)
+            self.session.cookies.set("acw_sc__v2", acw_sc__v2)
+            time.sleep(10)
+            return self.get_topic_params(topic_id, course_id)
         return resp.text
 
     def learn_course(self, course: Tag, course_id) -> None:
@@ -143,6 +147,8 @@ class AutoMoocMain:
 
     def join_topic(self, topic_id, course_id) -> None:
         params = self.get_topic_params(topic_id, course_id)
+        with open("./test.text", "w") as f:
+            f.write(params)
 
 
     def listen_audio(self, audio_url) -> None:
