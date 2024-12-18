@@ -56,7 +56,12 @@ class AutoMoocMain:
             os._exit(0)
 
     def load_courses(self) -> dict:
-        self.session.get(f"https://mooc.icve.com.cn/?token=${self.token}")
+        try:
+            self.session.get(f"https://mooc.icve.com.cn/?token=${self.token}")
+        except:
+            log.warn(f"登录失败，正在重试...{e}")
+            time.sleep(2)
+            return self.load_courses()
         courses_api = mooc_api_url['select_courses']
         params = f"token={self.token}&siteCode=zhzj&curPage=1&pageSize=9999&selectType=1"
 
@@ -119,10 +124,10 @@ class AutoMoocMain:
             time.sleep(2)
             return self.get_course_html(course_id)
         
-    def get_topic_params(self, topic_id, course_id):
+    def get_topic_params(self, course_id, topic_id):
         param = {
             "action": "item",
-            "itemid": topic_id,
+            "itemId": topic_id,
             "courseId": course_id,
             "ssoUserId": self.username
         }
@@ -132,21 +137,36 @@ class AutoMoocMain:
             acw_sc__v2 = Utils.get_acw_sc__v2(resp.text)
             self.session.cookies.set("acw_sc__v2", acw_sc__v2)
             time.sleep(10)
-            return self.get_topic_params(topic_id, course_id)
+            return self.get_topic_params(course_id, topic_id)
         return resp.text
 
-    def learn_course(self, course: Tag, course_id) -> None:
-        type = course['itemtype']
-        id = course['id'].replace("s_point_", "")
+    def query_course_info(self, course_id) -> dict:
+        params = {
+            "itemId": course_id
+        }
+        try:
+            url = mooc_api_url["query_course_info"]
+            resp = self.session.post(url=url, params=params)
+            resp_json = resp.json()
+            return resp_json
+        except Exception as e:
+            log.error(f"获取课程信息失败，正在重试... {e}")
+            time.sleep(2)
+            return self.query_course_info(course_id)
+
+    def learn_course(self, type, id) -> None:
+        course_info = self.query_course_info(id)
+        course_id = course_info["item"]["courseId"]
+        item_id = course_info["item"]["id"]
         if type == "topic":
-            self.join_topic(id, course_id)
+            self.join_topic(course_id, item_id)
 
         
     def watch_video(self, video_url) -> None:
         ...
 
-    def join_topic(self, topic_id, course_id) -> None:
-        params = self.get_topic_params(topic_id, course_id)
+    def join_topic(self, course_id, topic_id) -> None:
+        params = self.get_topic_params(course_id, topic_id)
         with open("./test.text", "w") as f:
             f.write(params)
 
@@ -181,6 +201,7 @@ class AutoMoocMain:
                     courses = HtmlParser.get_courses(str(courses))
                     for course in courses:
                         title = HtmlParser.get_course_title(str(course))
+                        id = HtmlParser.get_course_id(str(course))
                         type = course['itemtype']
                         log.info(f"第{chapter_index}章 > 第{section_index}节 > {type} {title}")
-                        self.learn_course(course, course_id)
+                        self.learn_course(type, id)

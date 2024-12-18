@@ -11,7 +11,6 @@ import re
 
 from bs4.element import Tag
 
-encrypt_key = "3000176000856006061501533003690027800375"
 
 class Utils():
     
@@ -40,6 +39,7 @@ class Utils():
 
     @staticmethod
     def get_acw_sc__v2(script_str):
+        encrypt_key = "3000176000856006061501533003690027800375"
         pattern = r"(?<=arg1\=')[^']+(?=';)"
         findall = re.findall(pattern, script_str)
         encrypted_id = findall[0]
@@ -120,5 +120,21 @@ class HtmlParser:
     @staticmethod
     def get_course_id(html : str) -> str:
         soup = bs4.BeautifulSoup(html, "html.parser")
-        course_id = soup.find("div", class_="s_pointti")
-        return course_id["data-id"]
+        course_id = soup.find("div", class_="s_point")
+        return course_id["id"].replace("s_point_", "")
+    
+    @staticmethod
+    def get_current_site_id(html: str):
+        ...
+    
+    @staticmethod
+    def get_current_main_id(html: str):
+        ...
+
+    @staticmethod
+    def get_current_course_id(html: str):
+        ...
+    
+    @staticmethod
+    def get_current_item_id(html: str):
+        ...

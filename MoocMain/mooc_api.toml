@@ -3,3 +3,4 @@ select_courses = "https://mooc.icve.com.cn/patch/zhzj/studentMooc_selectMoocCour
 join_course = "https://mooc.icve.com.cn/patch/zhzj/dataCheck.action"
 courseware = "https://course.icve.com.cn/learnspace/learn/learn/templateeight/courseware_index.action"
 course_topic = "https://course.icve.com.cn/taolun/learn/courseTopicAction.action"
+query_course_info = "https://course.icve.com.cn/learnspace/course/study/learningTime_queryCourseItemInfo.action"
