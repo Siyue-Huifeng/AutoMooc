@@ -124,6 +124,19 @@ class HtmlParser:
         return course_id["id"].replace("s_point_", "")
     
     @staticmethod
+    def get_action_topic_param(html: str) -> dict:
+        params = {}
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        pattern = r"'([^']*)'"
+        reply_user_info = re.findall(pattern, soup.find("a", id="editor_area")["onclick"])
+        params["reply_user_id"] = reply_user_info[2]
+        params["reply_user_name"] = reply_user_info[3]
+        params["site_id"] = soup.find("input", id="current_site_id")["value"]
+        params["main_id"] = soup.find("input", id="current_main_id")["value"]
+        params["current_user_id"] = soup.find("input", id="current_user_id")["value"]
+        return params
+
+    @staticmethod
     def get_current_site_id(html: str):
         ...
     

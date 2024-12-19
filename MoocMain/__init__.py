@@ -166,9 +166,8 @@ class AutoMoocMain:
         ...
 
     def join_topic(self, course_id, topic_id) -> None:
-        params = self.get_topic_params(course_id, topic_id)
-        with open("./test.text", "w") as f:
-            f.write(params)
+        params_html = self.get_topic_params(course_id, topic_id)
+        params = HtmlParser.get_action_topic_param(params_html)
 
 
     def listen_audio(self, audio_url) -> None:
