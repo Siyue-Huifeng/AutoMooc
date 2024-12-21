@@ -133,21 +133,21 @@ class HtmlParser:
         params["reply_user_name"] = reply_user_info[3]
         params["site_id"] = soup.find("input", id="current_site_id")["value"]
         params["main_id"] = soup.find("input", id="current_main_id")["value"]
-        params["current_user_id"] = soup.find("input", id="current_user_id")["value"]
+        params["item_id"] = soup.find("input", id="current_item_id")["value"]
+        params["user_id"] = soup.find("input", id="current_user_id")["value"]
         return params
 
-    @staticmethod
-    def get_current_site_id(html: str):
-        ...
-    
-    @staticmethod
-    def get_current_main_id(html: str):
-        ...
-
-    @staticmethod
-    def get_current_course_id(html: str):
-        ...
-    
-    @staticmethod
-    def get_current_item_id(html: str):
-        ...
+    @classmethod
+    def get_all_topic_content(cls, html: str, length) -> list[str]:
+        soup = bs4.BeautifulSoup(html, "html.parser")
+        div = soup.find_all("div", class_="tlTxt lx_tlq_txt")
+        ls = []
+        if length == 0: return ls
+        for i in div:
+            content = i.text.replace("\n", "").replace("\u200c", "")
+            if content in ls: continue
+            ls.append(content) if len(content) >= length else None
+        if len(ls) == 0:
+            return cls.get_all_topic_content(length - 1)
+        return ls
+        

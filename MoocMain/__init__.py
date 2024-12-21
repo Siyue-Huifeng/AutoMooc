@@ -4,6 +4,7 @@
 # @Time: 2024/12/8
 
 import requests
+import random
 import time
 import os
 
@@ -124,7 +125,7 @@ class AutoMoocMain:
             time.sleep(2)
             return self.get_course_html(course_id)
         
-    def get_topic_params(self, course_id, topic_id):
+    def get_topic_params(self, course_id, topic_id) -> dict:
         param = {
             "action": "item",
             "itemId": topic_id,
@@ -136,9 +137,10 @@ class AutoMoocMain:
         if "<script>" in resp.text:
             acw_sc__v2 = Utils.get_acw_sc__v2(resp.text)
             self.session.cookies.set("acw_sc__v2", acw_sc__v2)
-            time.sleep(10)
+            time.sleep(2)
             return self.get_topic_params(course_id, topic_id)
-        return resp.text
+        params = HtmlParser.get_action_topic_param(resp.text)
+        return params
 
     def query_course_info(self, course_id) -> dict:
         params = {
@@ -153,6 +155,20 @@ class AutoMoocMain:
             log.error(f"获取课程信息失败，正在重试... {e}")
             time.sleep(2)
             return self.query_course_info(course_id)
+    
+    def get_students_topic(self, course_id, topic_id, topic_params, sort_type):
+        url = mooc_api_url["students_topic"]
+        data = {
+            "action": "studentlist",
+            "mainId": topic_params["main_id"],
+            "itemId": topic_params["item_id"],
+            "createUserId": topic_params["user_id"],
+            "siteId": topic_params["site_id"],
+            "rolePermissions": "",
+            "selectTopicType": 0
+        }
+        resp = self.session.post(url, data=data)
+        return resp.text
 
     def learn_course(self, type, id) -> None:
         course_info = self.query_course_info(id)
@@ -166,9 +182,29 @@ class AutoMoocMain:
         ...
 
     def join_topic(self, course_id, topic_id) -> None:
-        params_html = self.get_topic_params(course_id, topic_id)
-        params = HtmlParser.get_action_topic_param(params_html)
-
+        topic_params = self.get_topic_params(course_id, topic_id)
+        content_html = self.get_students_topic(course_id, topic_id, topic_params, 1)
+        all_topic_content = HtmlParser.get_all_topic_content(content_html, 20)
+        auth = mooc_api_url["auth"]
+        self.session.get(auth)
+        content = all_topic_content[random.randint(0, len(all_topic_content) - 1)]
+        params = {
+            'currentId': topic_params["main_id"],
+            'action': 'reply',
+            'parentId': topic_params["main_id"],
+            'mainId': topic_params["main_id"],
+            'content': f'<p>{content}</p>',
+            'itemId': topic_params["item_id"],
+            'courseId': course_id,
+            'createUserId': topic_params["user_id"],
+            'createUserName': self.username,
+            'replyUserId': topic_params["reply_user_id"],
+            'replyUserName': topic_params["reply_user_name"]
+        }
+        course_topic_api = mooc_api_url["course_topic"]
+        resp = self.session.post(url=course_topic_api, data=params)
+        resp_json = resp.json()
+        log.info(f"回复讨论成功{resp_json['success']}, {content}")
 
     def listen_audio(self, audio_url) -> None:
         ...
@@ -176,6 +212,7 @@ class AutoMoocMain:
     def run(self) -> None:
         # 不要问我为啥会有介么多层 for 
         mooc_course_items = self.load_courses()
+        # 遍历课程
         for course_item in mooc_course_items['data']:
             log.debug(Utils.format_json(course_item))
             log.info(f"检索到课程: {course_item[0]}, 时期: {course_item[1]}, 教师: {course_item[15]}")
@@ -186,21 +223,27 @@ class AutoMoocMain:
             learn_menu_root = HtmlParser.get_menu_root(course_html_page)
             chapters = HtmlParser.get_chapter(str(learn_menu_root))
             sections_list = HtmlParser.get_sectionlist(str(learn_menu_root))
-            chapter_index = 1
+            chapter_index = 0
+            # 遍历章
             for chapter, sections in zip(chapters, sections_list):
-                log.info(f"第{chapter_index}章: {chapter['title']}")
                 chapter_index += 1
+                log.info(f"第{chapter_index}章: {chapter['title']}")
                 sections_chapter = HtmlParser.get_section_title(str(sections))
                 sections = HtmlParser.get_section_content(str(sections))
-                section_index = 1
+                section_index = 0
                 time.sleep(2)
+                # 遍历节
                 for section_title, courses in zip(sections_chapter, sections):
                     section_index += 1
                     time.sleep(1)
                     courses = HtmlParser.get_courses(str(courses))
+                    # 遍历小节内容
                     for course in courses:
                         title = HtmlParser.get_course_title(str(course))
                         id = HtmlParser.get_course_id(str(course))
                         type = course['itemtype']
-                        log.info(f"第{chapter_index}章 > 第{section_index}节 > {type} {title}")
+                        if HtmlParser.is_section_done(str(course)):
+                            log.info(f"小节 {title} 已完成")
+                            continue
+                        log.info(f"开始学习: 第{chapter_index}章 > 第{section_index}节 > {type} {title}")
                         self.learn_course(type, id)
